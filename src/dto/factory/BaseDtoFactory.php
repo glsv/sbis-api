@@ -17,6 +17,8 @@ abstract class BaseDtoFactory implements DtoFactoryInterface
      */
     protected static $dateTimeAttrs = [];
 
+    protected static $timeZoneKey = 'Europe/Moscow';
+
     abstract protected static function getDto(): mixed;
 
     abstract protected static function getDtoFactoriesForGrouping(): array;
@@ -58,7 +60,10 @@ abstract class BaseDtoFactory implements DtoFactoryInterface
             try {
                 if (array_key_exists($attr, $classAttrs)) {
                     if (in_array($attr, static::$dateTimeAttrs)) {
-                        $dto->$attr = \DateTime::createFromFormat("Y-m-d H:i:s", $value);
+                        $dto->$attr = \DateTime::createFromFormat(
+                            "Y-m-d H:i:s",
+                            $value, self::getDefaultTimeZone()
+                        );
                     } else {
                         $dto->$attr = $value;
                     }
@@ -87,5 +92,10 @@ abstract class BaseDtoFactory implements DtoFactoryInterface
                 $dto->$attr = $factoryClassName::create($data);
             }
         }
+    }
+
+    protected static function getDefaultTimeZone(): \DateTimeZone
+    {
+        return new \DateTimeZone(self::$timeZoneKey);
     }
 }
