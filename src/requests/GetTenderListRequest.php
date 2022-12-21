@@ -9,7 +9,7 @@ use Glsv\SbisApi\vo\SortOrder;
 
 class GetTenderListRequest implements RequestInterface
 {
-    public int $limit = 10;
+    public ?int $limit = null;
     public ?\DateTime $fromPublishDateTime = null;
     public ?\DateTime $toPublishDateTime = null;
     public ?\DateTime $fromLastModifiedDateTime = null;
@@ -25,8 +25,11 @@ class GetTenderListRequest implements RequestInterface
     {
         $body = [
             'requestName' => $this->requestName,
-            'limit' => $this->limit,
         ];
+
+        if ($this->limit) {
+            $body['limit'] = $this->limit;
+        }
 
         $body['fromPublishDateTime'] = $this->fromPublishDateTime?->format("Y-m-d H:i:s");
         $body['toPublishDateTime'] = $this->toPublishDateTime?->format("Y-m-d H:i:s");
