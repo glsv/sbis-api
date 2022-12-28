@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace Glsv\SbisApi;
 
 use Glsv\SbisApi\interfaces\{ApiResponseInterface, RequestInterface};
+use Glsv\SbisApi\vo\SbisErrorCode;
 use Glsv\SbisApi\exceptions\{SbisApiException,
     SbisApiRuntimeException,
     SbisApiUnauthorizedException,
-    SbisInvalidParamsException};
+    SbisInvalidParamsException,
+    SbisApiLimitException};
 use Glsv\SbisApi\models\ApiResponse;
 use Psr\Http\Message\ResponseInterface;
 use GuzzleHttp\Client;
@@ -91,11 +93,31 @@ class SbisClientApi
     {
         $response = $this->makePost($method, $request->buildBody());
 
-        if ($response->isError()) {
+        if (!$response->isError()) {
+            return $response->getResult();
+        }
+
+        $errorDto = $response->getError();
+        if ($errorDto === null) {
             throw new SbisApiRuntimeException("Error response: " . $response);
         }
 
-        return $response->getResult();
+        $message = sprintf(
+            "Message: %s, ErrorCode: %d. Error: %s",
+            $errorDto->message,
+            $errorDto->errorCode->value,
+            $errorDto->errorCode->getLabel()
+        );
+
+        switch ($errorDto->errorCode) {
+            case SbisErrorCode::LIMIT_DAY_TENDERS:
+            case SbisErrorCode::LIMIT_DAY_TENDERS_REQUESTED:
+            case SbisErrorCode::LIMIT_NUMBER_TENDERS_ONCE:
+            case SbisErrorCode::NUMBER_TENDERS_EXCEEDED_REST:
+                throw new SbisApiLimitException($message, $errorDto->errorCode->value);
+            default:
+                throw new SbisApiRuntimeException($message, $errorDto->errorCode->value);
+        }
     }
 
     protected function handleResponse(ResponseInterface $response): ApiResponseInterface

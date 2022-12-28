@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Glsv\SbisApi\dto;
 
+use Glsv\SbisApi\vo\SbisErrorCode;
+
 class ApiErrorDataDto
 {
     public int $code;
@@ -11,6 +13,7 @@ class ApiErrorDataDto
     public ?string $details;
     public ?string $type;
     public ?array $data;
+    public ?SbisErrorCode $errorCode;
 
     public static function create(array $rawData): self
     {
@@ -20,6 +23,12 @@ class ApiErrorDataDto
         $m->details = $rawData['details'] ?? null;
         $m->type = $rawData['type'] ?? null;
         $m->data = $rawData['data'] ?? null;
+
+        if (isset($rawData['data']['error_code'] )) {
+            $m->errorCode = SbisErrorCode::from($rawData['data']['error_code']);
+        } else {
+            $m->errorCode = SbisErrorCode::SERVER_ERROR;
+        }
 
         return $m;
     }
