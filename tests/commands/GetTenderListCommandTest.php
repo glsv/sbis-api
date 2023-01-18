@@ -45,7 +45,7 @@ class GetTenderListCommandTest extends TestCase
         $this->assertSame('9354300021322000001_1', $tender->number);
         $this->assertSame('Орловская обл', $tender->region);
         $this->assertSame(2340996.0, $tender->price);
-        $this->assertSame('RUB', $tender->currency->value);
+        $this->assertSame('RUB', $tender->currency->getValue());
     }
 
     /**

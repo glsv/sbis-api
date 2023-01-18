@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Glsv\SbisApi\dto\factory;
 
 use Glsv\SbisApi\dto\TenderDto;
-use Glsv\SbisApi\vo\factory\CurrencyFactory;
+use Glsv\SbisApi\vo\Currency;
 use Glsv\SbisApi\vo\factory\TenderStatusFactory;
 
 class TenderDtoFactory extends BaseDtoFactory
@@ -19,7 +19,7 @@ class TenderDtoFactory extends BaseDtoFactory
         }
 
         if (isset($data['currency_code']) && $data['currency_code']) {
-            $m->currency = CurrencyFactory::create($data['currency_code']);
+            $m->currency = new Currency($data['currency_code']);
         }
 
         return $m;
